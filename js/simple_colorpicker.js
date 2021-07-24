@@ -14,7 +14,7 @@ function SimpleColorpicker() {
   let _this = this;
   let _options = {};
   let _arrowSize = 10;
-  const _allPostions = ["top", "right", "bottom", "left"];
+  const _allPostions = ["top", "right", "bottom", "left", 'bottom-right', 'bottom-left'];
 
   //Set options or the default ones
   this.setOptions = (options) => {
@@ -24,7 +24,9 @@ function SimpleColorpicker() {
       //Number of cols in the picker
       gridCols: options.gridCols,
       //Prefered position of the picker
-      position: options.position || "left",
+      position: options.position || "bottom-right",
+      //Label to the picker
+      label: options.label,
       //Array of colors which will be in the picker
       colors: options.colors || [
         "#3F51B5",
@@ -53,8 +55,8 @@ function SimpleColorpicker() {
 
   /**
    * Init simple color picker on the specific element or on all with specific class
-   * 
-   * @param {object} el input element 
+   *
+   * @param {object} el input element
    */
   this.colorpicker = (el = null) => {
     //Elements to bind colorpickers
@@ -85,7 +87,7 @@ function SimpleColorpicker() {
       pickerIcon.style.backgroundColor =
         inputElement.value || _options.colors[0];
 
-      //Insert picker icon to the dom  
+      //Insert picker icon to the dom
       inputElement.parentNode.insertBefore(
         pickerIcon,
         inputElement.nextSibling
@@ -98,8 +100,8 @@ function SimpleColorpicker() {
 
   /**
    * Create a picker element
-   * 
-   * @param {object} pickerIcon picker icon element 
+   *
+   * @param {object} pickerIcon picker icon element
    * @param {object} inputElement picker input element
    */
   function createPicker(pickerIcon, inputElement) {
@@ -108,7 +110,13 @@ function SimpleColorpicker() {
     picker.classList.add("sc-color-picker");
     picker.style.display = "none";
 
-    // TODO create picker label
+    // Create picker label
+    if(_options.label){
+      const label = document.createElement("div");
+      label.classList.add('sc-color-picker-label');
+      label.innerText = _options.label;
+      picker.appendChild(label);
+    }
 
     //Create colors block
     const pickerColors = document.createElement("div");
@@ -140,10 +148,9 @@ function SimpleColorpicker() {
     });
   }
 
-  
   /**
    * Show and hide picker
-   * 
+   *
    * @param {object} picker picker element
    * @param {object} pickerIcon picker icon element
    */
@@ -160,7 +167,7 @@ function SimpleColorpicker() {
 
   /**
    * Select color from the picker, close picker and set selected color to the icon
-   * 
+   *
    * @param {object} colorItem selected color item
    * @param {object} inputElement picker input element
    * @param {object} picker picker element
@@ -199,6 +206,9 @@ function SimpleColorpicker() {
       }
     }
 
+    //Todo add arrow to the picker
+
+
     //Set position to the picker
     picker.style.top = `${coords.top}px`;
     picker.style.left = `${coords.left}px`;
@@ -231,6 +241,14 @@ function SimpleColorpicker() {
         left = iconBound.left - pickerBound.width - _arrowSize;
         top = iconBound.top + iconBound.height / 2 - pickerBound.height / 2;
         break;
+      case "bottom-right":
+        left = iconBound.left + iconBound.width + _arrowSize;
+        top = iconBound.top + iconBound.height;
+        break;
+      case "bottom-left":
+        left = iconBound.left - pickerBound.width - _arrowSize;
+        top = iconBound.top + iconBound.height;
+        break;
     }
 
     //Check enought place
@@ -244,7 +262,7 @@ function SimpleColorpicker() {
       position
     );
 
-    return { left, top, doesFit };
+    return { left, top, doesFit, position};
   }
 
   /**
@@ -287,6 +305,20 @@ function SimpleColorpicker() {
         if (
           coords.left < 0 ||
           coords.top < 0 ||
+          coords.top + height + _arrowSize > window.innerHeight
+        )
+          fit = false;
+        break;
+      case "bottom-left":
+        if (
+          coords.left < 0 ||         
+          coords.top + height + _arrowSize > window.innerHeight
+        )
+          fit = false;
+        break;
+      case "bottom-right":
+        if (
+          coords.left + width > window.innerWidth ||
           coords.top + height + _arrowSize > window.innerHeight
         )
           fit = false;
