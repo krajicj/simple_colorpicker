@@ -13,14 +13,19 @@ function SimpleColorpicker() {
   //Make context of this function visible in all code
   let _this = this;
   let _options = {};
-  let _arrowHeight = 10;
+  let _arrowSize = 10;
+  const _allPostions = ["top", "right", "bottom", "left"];
 
   //Set options or the default ones
   this.setOptions = (options) => {
     _options = {
+      //Size of the picker icon
       iconSize: options.iconSize,
+      //Number of cols in the picker
       gridCols: options.gridCols,
+      //Prefered position of the picker
       position: options.position || "left",
+      //Array of colors which will be in the picker
       colors: options.colors || [
         "#3F51B5",
         "#2196F3",
@@ -46,7 +51,11 @@ function SimpleColorpicker() {
     };
   };
 
-  //Function that init the colorpicker
+  /**
+   * Init simple color picker on the specific element or on all with specific class
+   * 
+   * @param {object} el input element 
+   */
   this.colorpicker = (el = null) => {
     //Elements to bind colorpickers
     let elements = [];
@@ -76,23 +85,30 @@ function SimpleColorpicker() {
       pickerIcon.style.backgroundColor =
         inputElement.value || _options.colors[0];
 
+      //Insert picker icon to the dom  
       inputElement.parentNode.insertBefore(
         pickerIcon,
         inputElement.nextSibling
       );
 
       //Create picker
-      createPicker(pickerIcon, inputElement, pickerIcon);
+      createPicker(pickerIcon, inputElement);
     });
   };
 
-  function createPicker(pickerIcon, inputElement, pickerIcon) {
+  /**
+   * Create a picker element
+   * 
+   * @param {object} pickerIcon picker icon element 
+   * @param {object} inputElement picker input element
+   */
+  function createPicker(pickerIcon, inputElement) {
     //Create picker
     const picker = document.createElement("div");
     picker.classList.add("sc-color-picker");
     picker.style.display = "none";
 
-    //TODO create picker label
+    // TODO create picker label
 
     //Create colors block
     const pickerColors = document.createElement("div");
@@ -124,7 +140,13 @@ function SimpleColorpicker() {
     });
   }
 
-  //Show and hide picker
+  
+  /**
+   * Show and hide picker
+   * 
+   * @param {object} picker picker element
+   * @param {object} pickerIcon picker icon element
+   */
   function togglePicker(picker, pickerIcon) {
     if (picker.classList.contains("active")) {
       picker.classList.remove("active");
@@ -136,7 +158,14 @@ function SimpleColorpicker() {
     }
   }
 
-  //Select color from the picker
+  /**
+   * Select color from the picker, close picker and set selected color to the icon
+   * 
+   * @param {object} colorItem selected color item
+   * @param {object} inputElement picker input element
+   * @param {object} picker picker element
+   * @param {object} pickerIcon picker icon element
+   */
   function selectColor(colorItem, inputElement, picker, pickerIcon) {
     //Set selected value to the input
     inputElement.value = colorItem.dataset.color;
@@ -146,60 +175,87 @@ function SimpleColorpicker() {
     pickerIcon.style.backgroundColor = colorItem.dataset.color;
   }
 
-  //Place picker to the specified position if there is a place
+  /**
+   * Place picker to the specified position if there is
+   * a place or select position where is space for picker
+   *
+   * @param {object} picker picker element
+   * @param {object} pickerIcon icker icon element
+   * @param {string} position prefered position to place
+   */
   function placePicker(picker, pickerIcon, position) {
+    //Get picker and icon boudaries
     const pickerBound = picker.getBoundingClientRect();
     const iconBound = pickerIcon.getBoundingClientRect();
 
-    const allPostions = ["top", "right", "bottom", "left"];
-
+    //Calculate prefered position
     let coords = calculateCoords(pickerBound, iconBound, position);
+
     //If does not fit check other position
     if (!coords.doesFit) {
-      for(let i = 0; i < allPostions.length; i++){
-        coords = calculateCoords(pickerBound, iconBound, allPostions[i]);
-        console.log(position);
-        console.log(coords);
-
+      for (let i = 0; i < _allPostions.length; i++) {
+        coords = calculateCoords(pickerBound, iconBound, _allPostions[i]);
         if (coords.doesFit) break;
       }
     }
-    console.log(coords);
 
+    //Set position to the picker
     picker.style.top = `${coords.top}px`;
     picker.style.left = `${coords.left}px`;
   }
 
+  /**
+   * Calculates position coords of the picker based on the specified position
+   *
+   * @param {object} pickerBound object of picker boundary
+   * @param {object} iconBound object of icon boundary
+   * @param {string} position position to place a picker
+   * @returns
+   */
   function calculateCoords(pickerBound, iconBound, position) {
     let top, left;
     switch (position) {
       case "top":
         left = iconBound.left + iconBound.width / 2 - pickerBound.width / 2;
-        top = iconBound.top - pickerBound.height - _arrowHeight;
+        top = iconBound.top - pickerBound.height - _arrowSize;
         break;
       case "right":
-        left = iconBound.left + iconBound.width + _arrowHeight;
+        left = iconBound.left + iconBound.width + _arrowSize;
         top = iconBound.top + iconBound.height / 2 - pickerBound.height / 2;
         break;
       case "bottom":
         left = iconBound.left + iconBound.width / 2 - pickerBound.width / 2;
-        top = iconBound.top + iconBound.height + _arrowHeight;
+        top = iconBound.top + iconBound.height + _arrowSize;
         break;
       case "left":
-        left = iconBound.left - pickerBound.width - _arrowHeight;
+        left = iconBound.left - pickerBound.width - _arrowSize;
         top = iconBound.top + iconBound.height / 2 - pickerBound.height / 2;
         break;
     }
 
     //Check enought place
-    const doesFit = checkPositionPlace(pickerBound.width, pickerBound.height, {
-      left,
-      top,
-    }, position);
+    const doesFit = checkPositionPlace(
+      pickerBound.width,
+      pickerBound.height,
+      {
+        left,
+        top,
+      },
+      position
+    );
 
     return { left, top, doesFit };
   }
 
+  /**
+   * Check if the picker with specific size and coords can be placed to the specific position
+   *
+   * @param {number} width width of the picker
+   * @param {number} height height of the picker
+   * @param {object} coords left and top position of the picker
+   * @param {string} position position to place a picker
+   * @returns
+   */
   function checkPositionPlace(width, height, coords, position) {
     let fit = true;
     switch (position) {
@@ -215,13 +271,13 @@ function SimpleColorpicker() {
         if (
           coords.left + width > window.innerWidth ||
           coords.top < 0 ||
-          coords.top + height + _arrowHeight > window.innerHeight
+          coords.top + height + _arrowSize > window.innerHeight
         )
           fit = false;
         break;
       case "bottom":
         if (
-          coords.top + height + _arrowHeight > window.innerHeight ||
+          coords.top + height + _arrowSize > window.innerHeight ||
           coords.left < 0 ||
           coords.left + width > window.innerWidth
         )
@@ -231,7 +287,7 @@ function SimpleColorpicker() {
         if (
           coords.left < 0 ||
           coords.top < 0 ||
-          coords.top + height + _arrowHeight > window.innerHeight
+          coords.top + height + _arrowSize > window.innerHeight
         )
           fit = false;
         break;
