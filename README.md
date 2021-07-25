@@ -32,6 +32,7 @@ document.querySelector('.simple-colorpicker').colorpicker({
     iconSize: '1rem',
     gridCols: 5,
     position: 'top',
+    label: ''
     colors: ["#3F51B5","#2196F3", ...]
 });
 ```

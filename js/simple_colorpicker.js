@@ -14,7 +14,14 @@ function SimpleColorpicker() {
   let _this = this;
   let _options = {};
   let _arrowSize = 10;
-  const _allPostions = ["top", "right", "bottom", "left", 'bottom-right', 'bottom-left'];
+  const _allPostions = [
+    "top",
+    "right",
+    "bottom",
+    "left",
+    "bottom-right",
+    "bottom-left",
+  ];
 
   //Set options or the default ones
   this.setOptions = (options) => {
@@ -24,8 +31,8 @@ function SimpleColorpicker() {
       //Number of cols in the picker
       gridCols: options.gridCols,
       //Prefered position of the picker
-      position: options.position || "bottom-right",
-      //Label to the picker
+      position: options.position || "top",
+      //Label for the picker
       label: options.label,
       //Array of colors which will be in the picker
       colors: options.colors || [
@@ -110,10 +117,10 @@ function SimpleColorpicker() {
     picker.classList.add("sc-color-picker");
     picker.style.display = "none";
 
-    // Create picker label
-    if(_options.label){
+    //Create picker label
+    if (_options.label) {
       const label = document.createElement("div");
-      label.classList.add('sc-color-picker-label');
+      label.classList.add("sc-color-picker-label");
       label.innerText = _options.label;
       picker.appendChild(label);
     }
@@ -142,10 +149,19 @@ function SimpleColorpicker() {
 
     pickerIcon.parentNode.insertBefore(picker, pickerIcon.nextSibling);
 
+    //Bind hiding if click outside
+    document.addEventListener('mouseup', function(e) {
+      if (!picker.contains(e.target)) {
+          hidePicker(picker);
+      }
+    });
+
     //Bind showing
     pickerIcon.addEventListener("click", () => {
       togglePicker(picker, pickerIcon);
     });
+
+    
   }
 
   /**
@@ -156,13 +172,31 @@ function SimpleColorpicker() {
    */
   function togglePicker(picker, pickerIcon) {
     if (picker.classList.contains("active")) {
-      picker.classList.remove("active");
-      picker.style.display = "none";
+      hidePicker(picker);
     } else {
-      picker.classList.add("active");
-      picker.style.display = "block";
+      openPicker(picker);
       placePicker(picker, pickerIcon, _options.position);
     }
+  }
+
+  /**
+   * Open picker window
+   * 
+   * @param {object} picker picker element
+   */
+  function openPicker(picker){
+    picker.classList.add("active");
+    picker.style.display = "block";
+  }
+
+  /**
+   * Hide picker element
+   * 
+   * @param {object} picker picker element
+   */
+  function hidePicker(picker){
+    picker.classList.remove("active");
+    picker.style.display = "none";
   }
 
   /**
@@ -206,8 +240,8 @@ function SimpleColorpicker() {
       }
     }
 
-    //Todo add arrow to the picker
-
+    //Add arrow to the picker
+    placeArrowToPicker(coords, picker);
 
     //Set position to the picker
     picker.style.top = `${coords.top}px`;
@@ -262,7 +296,14 @@ function SimpleColorpicker() {
       position
     );
 
-    return { left, top, doesFit, position};
+    return {
+      left: left,
+      top: top,
+      width: pickerBound.width,
+      height: pickerBound.height,
+      doesFit: doesFit,
+      position: position,
+    };
   }
 
   /**
@@ -311,7 +352,7 @@ function SimpleColorpicker() {
         break;
       case "bottom-left":
         if (
-          coords.left < 0 ||         
+          coords.left < 0 ||
           coords.top + height + _arrowSize > window.innerHeight
         )
           fit = false;
@@ -325,6 +366,47 @@ function SimpleColorpicker() {
         break;
     }
     return fit;
+  }
+
+  function placeArrowToPicker(pickerCoords, picker) {
+    const arrow = document.createElement("div");
+    arrow.classList.add("arrow");
+    arrow.classList.add(`arrow-${pickerCoords.position}`);
+    picker.appendChild(arrow);
+
+    arrowBound = arrow.getBoundingClientRect();
+    let top, left;
+
+    switch (pickerCoords.position) {
+      case "top":
+        top = pickerCoords.height;
+        left = pickerCoords.width / 2 - arrowBound.width / 2;
+        break;
+      case "right":
+        top = pickerCoords.height / 2 - arrowBound.height / 2 ;
+        left = - arrowBound.width;
+        break;
+      case "bottom":
+        top =  - arrowBound.height ;
+        left = pickerCoords.width / 2 - arrowBound.width / 2;
+        break;
+      case "left":
+        top =  pickerCoords.height / 2 - arrowBound.height / 2;
+        left = pickerCoords.width ;
+        break;
+      case "bottom-left":
+        console.log(arrowBound);
+        top =   0 ;
+        left = pickerCoords.width  - arrowBound.width / 3;
+        break;
+      case "bottom-right":
+        top =  0;
+        left = 0 ;
+        break;
+    }
+    //Set position to the arrow
+    arrow.style.top = `${top}px`;
+    arrow.style.left = `${left}px`;
   }
 }
 

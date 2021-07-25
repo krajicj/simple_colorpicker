@@ -7,9 +7,9 @@
 }
 
 .sc-color-picker-label {
-  padding-bottom: .25rem;
-  color: #4D4F5C;
-  font-size: .75rem;
+  padding-bottom: 0.25rem;
+  color: #4d4f5c;
+  font-size: 0.75rem;
 }
 
 .sc-color-picker-colors {
@@ -30,4 +30,52 @@
   width: 1rem;
   height: 1rem;
   border-radius: 1rem;
+}
+
+.sc-color-picker .arrow {
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.sc-color-picker .arrow-bottom{
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+
+  border-bottom: 5px solid #fff;
+}
+
+.sc-color-picker .arrow-top {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+
+  border-top: 5px solid #fff;
+}
+
+.sc-color-picker .arrow-left {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+
+  border-left: 5px solid #fff;
+}
+
+.sc-color-picker .arrow-right {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+
+  border-right: 5px solid #fff;
+}
+.sc-color-picker .arrow-bottom-left {
+    border-width: 0 3px 10px 3px;
+	border-color: transparent transparent #ffffff transparent;
+	border-style: solid;
+    -ms-transform: rotate(50deg); /* IE 9 */
+    transform: rotate(50deg);
+}
+.sc-color-picker .arrow-bottom-right {
+    border-width: 0 3px 10px 3px;
+	border-color: transparent transparent #ffffff transparent;
+	border-style: solid;
+    -ms-transform: rotate(-50deg); /* IE 9 */
+    transform: rotate(-50deg);
 }
