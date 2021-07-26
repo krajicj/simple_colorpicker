@@ -9,7 +9,7 @@
  * Project: https://github.com/krajicj/simple_colorpicker
  */
 
-function SimpleColorpicker() {
+function SimpleColorpicker(options = {}) {
   //Make context of this function visible in all code
   let _this = this;
   let _options = {};
@@ -23,11 +23,16 @@ function SimpleColorpicker() {
     "bottom-left",
   ];
 
+  //Set options
+  setOptions(options);
+
   //Set options or the default ones
-  this.setOptions = (options) => {
+  function setOptions(options) {
     _options = {
       //Size of the picker icon
       iconSize: options.iconSize,
+      //Size of the colors in the picker
+      colorItemSize: options.colorItemSize,
       //Number of cols in the picker
       gridCols: options.gridCols,
       //Prefered position of the picker
@@ -58,7 +63,7 @@ function SimpleColorpicker() {
         "#474747",
       ],
     };
-  };
+  }
 
   /**
    * Init simple color picker on the specific element or on all with specific class
@@ -71,17 +76,35 @@ function SimpleColorpicker() {
 
     //Toggle call on element or call for all classes
     if (el) {
-      elements = [...el];
+      if (isIterable(el)) {
+        elements = [...el];
+      } else {
+        elements.push(el);
+      }
     } else {
       elements = document.querySelectorAll(".simple-colorpicker");
     }
 
     //Bind pickers to the elements
     elements.forEach((inputElement) => {
+      //Remove picker if allready binded
+      if (inputElement.classList.contains("sc-binded")) {
+        removePicker(inputElement);
+      }
+      //Hide input
       inputElement.style.display = "none";
+      inputElement.classList.add("sc-binded");
+
+      //Create picker wrapper
+      const pickerWrapper = document.createElement("div");
+      pickerWrapper.classList.add("sc-wrapper");
+
       //Create picker icon
       const pickerIcon = document.createElement("div");
       pickerIcon.classList.add("sc-color-icon");
+      const pickerIconInner = document.createElement("div");
+      pickerIconInner.classList.add("sc-color-icon-inner");
+      pickerIcon.appendChild(pickerIconInner);
 
       //Style picker icon
       if (_options.iconSize) {
@@ -91,19 +114,40 @@ function SimpleColorpicker() {
       }
 
       //Set init color
-      pickerIcon.style.backgroundColor =
+      pickerIconInner.style.backgroundColor =
         inputElement.value || _options.colors[0];
 
-      //Insert picker icon to the dom
+      //Insert picker wrapper to the dom
       inputElement.parentNode.insertBefore(
-        pickerIcon,
+        pickerWrapper,
         inputElement.nextSibling
       );
+
+      //Insert input and icon to the wrapper
+      pickerWrapper.appendChild(inputElement);
+      pickerWrapper.appendChild(pickerIcon);
 
       //Create picker
       createPicker(pickerIcon, inputElement);
     });
   };
+
+  /**
+   * Remove picker and bindings
+   * @param {object} inputElement 
+   */
+  function removePicker(inputElement) {
+    //Show original input
+    inputElement.style.display = "block";
+    inputElement.classList.remove("sc-binded");
+    //Find wrapper
+    const wrapper = inputElement.closest(".sc-wrapper");
+
+    //Remove input element from the wrapper
+    wrapper.parentNode.insertBefore(inputElement, wrapper.nextSibling);
+    //Remove wrapper with picker
+    wrapper.remove();
+  }
 
   /**
    * Create a picker element
@@ -135,10 +179,8 @@ function SimpleColorpicker() {
 
     //Create and add colors to the picker
     _options.colors.forEach((color) => {
-      const colorItem = document.createElement("div");
-      colorItem.classList.add("sc-color-item");
-      colorItem.dataset.color = color;
-      colorItem.style.backgroundColor = color;
+      const colorItem = createColorItem(color);
+
       pickerColors.appendChild(colorItem);
 
       //Bind selecting event
@@ -150,9 +192,9 @@ function SimpleColorpicker() {
     pickerIcon.parentNode.insertBefore(picker, pickerIcon.nextSibling);
 
     //Bind hiding if click outside
-    document.addEventListener('mouseup', function(e) {
+    document.addEventListener("mouseup", function (e) {
       if (!picker.contains(e.target) && !pickerIcon.contains(e.target)) {
-          hidePicker(picker);
+        hidePicker(picker);
       }
     });
 
@@ -160,8 +202,26 @@ function SimpleColorpicker() {
     pickerIcon.addEventListener("click", () => {
       togglePicker(picker, pickerIcon);
     });
+  }
 
-    
+  /**
+   * Crate color item for the picker
+   *
+   * @param {string} color hex color with leading hashmark
+   * @returns color item element
+   */
+  function createColorItem(color) {
+    const colorItem = document.createElement("div");
+    colorItem.classList.add("sc-color-item");
+    colorItem.dataset.color = color;
+    colorItem.style.backgroundColor = color;
+
+    if (_options.colorItemSize) {
+      colorItem.style.width = _options.colorItemSize;
+      colorItem.style.height = _options.colorItemSize;
+    }
+
+    return colorItem;
   }
 
   /**
@@ -181,22 +241,23 @@ function SimpleColorpicker() {
 
   /**
    * Open picker window
-   * 
+   *
    * @param {object} picker picker element
    */
-  function openPicker(picker){
+  function openPicker(picker) {
     picker.classList.add("active");
     picker.style.display = "block";
   }
 
   /**
    * Hide picker element
-   * 
+   *
    * @param {object} picker picker element
    */
-  function hidePicker(picker){
+  function hidePicker(picker) {
     picker.classList.remove("active");
     picker.style.display = "none";
+    removeArrowFromPicker(picker);
   }
 
   /**
@@ -213,7 +274,8 @@ function SimpleColorpicker() {
     //Hide picker
     togglePicker(picker);
     //Set icon new color
-    pickerIcon.style.backgroundColor = colorItem.dataset.color;
+    pickerIcon.querySelector(".sc-color-icon-inner").style.backgroundColor =
+      colorItem.dataset.color;
   }
 
   /**
@@ -370,7 +432,7 @@ function SimpleColorpicker() {
 
   /**
    * Place arrow pointing from the picker to the picker icon
-   * 
+   *
    * @param {object} pickerCoords picker element coords
    * @param {object} picker picker element
    */
@@ -389,41 +451,46 @@ function SimpleColorpicker() {
         left = pickerCoords.width / 2 - arrowBound.width / 2;
         break;
       case "right":
-        top = pickerCoords.height / 2 - arrowBound.height / 2 ;
-        left = - arrowBound.width;
+        top = pickerCoords.height / 2 - arrowBound.height / 2;
+        left = -arrowBound.width;
         break;
       case "bottom":
-        top =  - arrowBound.height ;
+        top = -arrowBound.height;
         left = pickerCoords.width / 2 - arrowBound.width / 2;
         break;
       case "left":
-        top =  pickerCoords.height / 2 - arrowBound.height / 2;
-        left = pickerCoords.width ;
+        top = pickerCoords.height / 2 - arrowBound.height / 2;
+        left = pickerCoords.width;
         break;
       case "bottom-left":
         console.log(arrowBound);
-        top =   0 ;
-        left = pickerCoords.width  - arrowBound.width / 3;
+        top = 0;
+        left = pickerCoords.width - arrowBound.width / 3;
         break;
       case "bottom-right":
-        top =  0;
-        left = 0 ;
+        top = 0;
+        left = 0;
         break;
     }
     //Set position to the arrow
     arrow.style.top = `${top}px`;
     arrow.style.left = `${left}px`;
   }
+
+  function removeArrowFromPicker(picker) {
+    const arrow = picker.querySelector(".arrow");
+    if (arrow) arrow.remove();
+  }
+
+  function isIterable(obj) {
+    // Checks for null and undefined
+    if (obj == null) {
+      return false;
+    }
+    return typeof obj[Symbol.iterator] === "function";
+  }
 }
 
 //Init all inputs with simple-colorpicker class
 let simpleColorpicker = new SimpleColorpicker();
-simpleColorpicker.setOptions({});
 simpleColorpicker.colorpicker();
-
-//Add prototype function to html elements
-HTMLElement.prototype.colorpicker = (options, el) => {
-  simpleColorpicker.setOptions(options);
-  simpleColorpicker.colorpicker(el);
-  return simpleColorpicker;
-};

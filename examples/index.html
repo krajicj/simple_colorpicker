@@ -30,9 +30,24 @@
         <div class="input-wrapper">
             <input type='text' class="simple-colorpicker" value="">
         </div>
-       
+        <div class="input-wrapper">
+            <input type='text' class="my-simple-colorpicker" value="">
+        </div>
+
     </div>
     <script src="../js/simple_colorpicker.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            const simpleColorpicker = new SimpleColorpicker({
+                iconSize: '1.5rem',
+                colorItemSize: '1.5rem',
+                gridCols: 5,
+                position: 'top',
+                label: 'Choose color'
+            });
+            simpleColorpicker.colorpicker(document.querySelectorAll('.simple-colorpicker'));           
+        });
+    </script>
 </body>
 
 </html>
