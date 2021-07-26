@@ -2,6 +2,8 @@
 
 Small fancy color picker without dependencies and easy to use.
 
+![alt text](https://github.com/[krajicj]/[simple_colorpicker]/examples/[main]/screenshot.png?raw=true)
+
 ## Description
 
 You can use this colorpicker for specified colors picking
