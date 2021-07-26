@@ -151,7 +151,7 @@ function SimpleColorpicker() {
 
     //Bind hiding if click outside
     document.addEventListener('mouseup', function(e) {
-      if (!picker.contains(e.target)) {
+      if (!picker.contains(e.target) && !pickerIcon.contains(e.target)) {
           hidePicker(picker);
       }
     });
@@ -368,6 +368,12 @@ function SimpleColorpicker() {
     return fit;
   }
 
+  /**
+   * Place arrow pointing from the picker to the picker icon
+   * 
+   * @param {object} pickerCoords picker element coords
+   * @param {object} picker picker element
+   */
   function placeArrowToPicker(pickerCoords, picker) {
     const arrow = document.createElement("div");
     arrow.classList.add("arrow");
