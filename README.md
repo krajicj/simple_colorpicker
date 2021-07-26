@@ -2,7 +2,7 @@
 
 Small fancy color picker without dependencies and easy to use.
 
-![alt text](https://github.com/[krajicj]/[simple_colorpicker]/examples/[main]/screenshot.png?raw=true)
+![alt text](https://github.com/krajicj/simple_colorpicker/blob/main/examples/screenshot.png?raw=true)
 
 ## Description
 
