@@ -8,6 +8,7 @@
   width: fit-content;
   border-radius: 1rem;
   position: absolute;
+  z-index: 999;
 }
 
 .sc-color-picker-label {
