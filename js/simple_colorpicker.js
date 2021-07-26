@@ -134,7 +134,7 @@ function SimpleColorpicker(options = {}) {
 
   /**
    * Remove picker and bindings
-   * @param {object} inputElement 
+   * @param {object} inputElement
    */
   function removePicker(inputElement) {
     //Show original input
@@ -322,38 +322,41 @@ function SimpleColorpicker(options = {}) {
     let top, left;
     switch (position) {
       case "top":
-        left = iconBound.left + iconBound.width / 2 - pickerBound.width / 2;
-        top = iconBound.top - pickerBound.height - _arrowSize;
+        left = iconBound.width / 2 - pickerBound.width / 2;
+        top = -(pickerBound.height + _arrowSize);
         break;
       case "right":
-        left = iconBound.left + iconBound.width + _arrowSize;
-        top = iconBound.top + iconBound.height / 2 - pickerBound.height / 2;
+        left = iconBound.width + _arrowSize;
+        top =  iconBound.height / 2 - pickerBound.height / 2;
         break;
       case "bottom":
-        left = iconBound.left + iconBound.width / 2 - pickerBound.width / 2;
-        top = iconBound.top + iconBound.height + _arrowSize;
+        left =  iconBound.width / 2 - pickerBound.width / 2;
+        top =  iconBound.height + _arrowSize;
         break;
       case "left":
-        left = iconBound.left - pickerBound.width - _arrowSize;
-        top = iconBound.top + iconBound.height / 2 - pickerBound.height / 2;
+        left =  - pickerBound.width - _arrowSize;
+        top =  iconBound.height / 2 - pickerBound.height / 2;
         break;
       case "bottom-right":
-        left = iconBound.left + iconBound.width + _arrowSize;
-        top = iconBound.top + iconBound.height;
+        left =  iconBound.width + _arrowSize;
+        top =  iconBound.height;
         break;
       case "bottom-left":
-        left = iconBound.left - pickerBound.width - _arrowSize;
-        top = iconBound.top + iconBound.height;
+        left = - pickerBound.width - _arrowSize;
+        top =  + iconBound.height;
         break;
     }
+
+    const absoluteLeft = iconBound.left + left;
+    const absoluteTop = iconBound.top + top;
 
     //Check enought place
     const doesFit = checkPositionPlace(
       pickerBound.width,
       pickerBound.height,
       {
-        left,
-        top,
+        left: absoluteLeft,
+        top: absoluteTop
       },
       position
     );
