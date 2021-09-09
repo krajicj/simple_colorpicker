@@ -39,6 +39,8 @@ function SimpleColorpicker(options = {}) {
       position: options.position || "top",
       //Label for the picker
       label: options.label,
+      //If true picker fill the input value if input empty value is empty
+      automaticFill: options.automaticFill || true,
       //Array of colors which will be in the picker
       colors: options.colors || [
         "#3F51B5",
@@ -116,6 +118,10 @@ function SimpleColorpicker(options = {}) {
       //Set init color
       pickerIconInner.style.backgroundColor =
         inputElement.value || _options.colors[0];
+
+      if (_options.automaticFill && inputElement.value === "") {
+        inputElement.value = _options.colors[0];
+      }
 
       //Insert picker wrapper to the dom
       inputElement.parentNode.insertBefore(
@@ -327,23 +333,23 @@ function SimpleColorpicker(options = {}) {
         break;
       case "right":
         left = iconBound.width + _arrowSize;
-        top =  iconBound.height / 2 - pickerBound.height / 2;
+        top = iconBound.height / 2 - pickerBound.height / 2;
         break;
       case "bottom":
-        left =  iconBound.width / 2 - pickerBound.width / 2;
-        top =  iconBound.height + _arrowSize;
+        left = iconBound.width / 2 - pickerBound.width / 2;
+        top = iconBound.height + _arrowSize;
         break;
       case "left":
-        left =  - pickerBound.width - _arrowSize;
-        top =  iconBound.height / 2 - pickerBound.height / 2;
+        left = -pickerBound.width - _arrowSize;
+        top = iconBound.height / 2 - pickerBound.height / 2;
         break;
       case "bottom-right":
-        left =  iconBound.width + _arrowSize;
-        top =  iconBound.height;
+        left = iconBound.width + _arrowSize;
+        top = iconBound.height;
         break;
       case "bottom-left":
-        left = - pickerBound.width - _arrowSize;
-        top =  + iconBound.height;
+        left = -pickerBound.width - _arrowSize;
+        top = +iconBound.height;
         break;
     }
 
@@ -356,7 +362,7 @@ function SimpleColorpicker(options = {}) {
       pickerBound.height,
       {
         left: absoluteLeft,
-        top: absoluteTop
+        top: absoluteTop,
       },
       position
     );
